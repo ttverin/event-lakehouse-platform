@@ -12,7 +12,7 @@ module.exports = async function (context, myTimer) {
         const response = await axios.get(url);
         const events = response.data;
 
-        // Prepare ADLS Gen2 client
+        // Prepare ADLS client
         const accountName = process.env.DATALAKE_ACCOUNT_NAME;
         const fileSystemName = "events";
         const credential = new DefaultAzureCredential();
@@ -23,12 +23,12 @@ module.exports = async function (context, myTimer) {
 
         const fileSystemClient = serviceClient.getFileSystemClient(fileSystemName);
 
-        // Create unique file path
+        // Create a unique file path
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
         const fileName = `raw/events_${timestamp}.json`;
         const fileClient = fileSystemClient.getFileClient(fileName);
 
-        // Upload file using create + append + flush
+        // Upload using create + append + flush
         const dataBuffer = Buffer.from(JSON.stringify(events));
         await fileClient.create({ overwrite: true });
         await fileClient.append(dataBuffer, 0, dataBuffer.length);
@@ -36,6 +36,6 @@ module.exports = async function (context, myTimer) {
 
         context.log(`Ticketmaster events uploaded to ${fileName}`);
     } catch (error) {
-        context.log.error("Failed to ingest Ticketmaster events:", error);
+        context.log.error("Failed to ingest Ticketmaster events:", error.message || error);
     }
 };

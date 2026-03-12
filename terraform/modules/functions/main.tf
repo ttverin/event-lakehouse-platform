@@ -12,6 +12,14 @@ resource "azurerm_storage_container" "events" {
   container_access_type = "private"
 }
 
+# Application Insights
+resource "azurerm_application_insights" "app_insights" {
+  name                = "${var.function_name}-ai"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  application_type    = "web"
+}
+
 resource "azurerm_linux_function_app" "func" {
   name                = var.function_name
   location            = var.location
@@ -31,9 +39,14 @@ resource "azurerm_linux_function_app" "func" {
     FUNCTIONS_WORKER_RUNTIME = "node"
     DATALAKE_ACCOUNT_NAME    = var.storage_account
     EVENTS_CONTAINER_NAME    = azurerm_storage_container.events.name
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.app_insights.instrumentation_key
   }
 }
 
 output "function_name" {
   value = azurerm_linux_function_app.func.name
+}
+
+output "application_insights_key" {
+  value = azurerm_application_insights.app_insights.instrumentation_key
 }

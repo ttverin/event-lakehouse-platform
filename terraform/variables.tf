@@ -21,3 +21,9 @@ variable "owner" {
   type        = string
   default     = "teemu.tverin@zuhlke.com"
 }
+
+variable "ticketmaster_api_key" {
+  description = "Ticketmaster API key"
+  type        = string
+  sensitive   = true
+}

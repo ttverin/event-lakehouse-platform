@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 module "storage" {
   source               = "./modules/storage"
   project_name         = var.project_name
@@ -21,6 +23,8 @@ module "functions" {
   resource_group_name  = module.storage.resource_group_name
   storage_account      = module.storage.storage_account_name
   storage_account_key  = module.storage.storage_account_key
+  storage_account_id   = module.storage.storage_account_id
   location             = var.location
+  ticketmaster_api_key = var.ticketmaster_api_key
 
 }

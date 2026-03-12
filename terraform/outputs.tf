@@ -5,13 +5,13 @@
 # output "storage_account_name" {
 #   value = azurerm_storage_account.datalake.name
 # }
-#
-# # output "tenant_id" {
-# #   description = "Azure Tenant ID"
-# #   value       = data.azurerm_client_config.current.tenant_id
-# # }
-# #
-# # output "subscription_id" {
-# #   description = "Azure Subscription ID"
-# #   value       = data.azurerm_client_config.current.subscription_id
-# # }
+
+output "tenant_id" {
+  description = "Azure Tenant ID"
+  value       = data.azurerm_client_config.current.tenant_id
+}
+
+output "subscription_id" {
+  description = "Azure Subscription ID"
+  value       = data.azurerm_client_config.current.subscription_id
+}

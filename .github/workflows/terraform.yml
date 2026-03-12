@@ -33,7 +33,11 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -var="environment=dev"
         working-directory: terraform
+        env:
+          TF_VAR_ticketmaster_api_key: ${{ secrets.TICKETMASTER_API_KEY }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="environment=dev"
         working-directory: terraform
+        env:
+          TF_VAR_ticketmaster_api_key: ${{ secrets.TICKETMASTER_API_KEY }}

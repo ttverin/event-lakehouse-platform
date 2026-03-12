@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_databricks_workspace" "workspace" {
   name                = var.workspace_name
   resource_group_name = var.resource_group

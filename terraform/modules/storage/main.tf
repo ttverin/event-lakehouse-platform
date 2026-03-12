@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 resource "random_string" "suffix" {
   length  = 5
   upper   = false
@@ -27,4 +29,8 @@ output "storage_account_name" {
 
 output "storage_account_key" {
   value = azurerm_storage_account.storage.primary_access_key
+}
+
+output "storage_account_id" {
+  value = azurerm_storage_account.storage.id
 }

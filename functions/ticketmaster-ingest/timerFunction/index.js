@@ -6,13 +6,13 @@ module.exports = async function (context, myTimer) {
     context.log("Ticketmaster ingestion started");
 
     try {
-        // Get Ticketmaster events
+        // Ticketmaster API
         const apiKey = process.env.TICKETMASTER_API_KEY;
         const url = `https://app.ticketmaster.com/discovery/v2/events.json?city=Zurich&apikey=${apiKey}`;
         const response = await axios.get(url);
         const events = response.data;
 
-        // Prepare ADLS client
+        // ADLS client
         const accountName = process.env.DATALAKE_ACCOUNT_NAME;
         const fileSystemName = "events";
         const credential = new DefaultAzureCredential();
@@ -23,16 +23,20 @@ module.exports = async function (context, myTimer) {
 
         const fileSystemClient = serviceClient.getFileSystemClient(fileSystemName);
 
-        // Create a unique file path
+        // Ensure filesystem exists
+        if (!(await fileSystemClient.exists())) {
+            await fileSystemClient.create();
+        }
+
+        // Create file
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
         const fileName = `raw/events_${timestamp}.json`;
         const fileClient = fileSystemClient.getFileClient(fileName);
 
-        // Upload using create + append + flush
-        const dataBuffer = Buffer.from(JSON.stringify(events));
+        const dataBuffer = Buffer.from(JSON.stringify(events), "utf-8");
         await fileClient.create({ overwrite: true });
-        await fileClient.append(dataBuffer, 0, dataBuffer.length);
-        await fileClient.flush(dataBuffer.length);
+        await fileClient.append(dataBuffer, 0, dataBuffer.byteLength);
+        await fileClient.flush(dataBuffer.byteLength);
 
         context.log(`Ticketmaster events uploaded to ${fileName}`);
     } catch (error) {

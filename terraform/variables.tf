@@ -1,15 +1,23 @@
+variable "project_name" {
+  description = "Project prefix"
+  type        = string
+  default     = "eventhouse"
+}
+
 variable "location" {
-  default = "westeurope"
+  description = "Azure region"
+  type        = string
+  default     = "westeurope"
 }
 
-variable "resource_group_name" {
-  type = string
+variable "environment" {
+  description = "Deployment environment (dev, test, prod)"
+  type        = string
+  default     = "dev"
 }
 
-variable "storage_account_name" {
-  type = string
-}
-
-variable "databricks_workspace_name" {
-  type = string
+variable "owner" {
+  description = "Project owner"
+  type        = string
+  default     = "teemu.tverin@zuhlke.com"
 }

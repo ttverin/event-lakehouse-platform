@@ -1,5 +1,5 @@
 {
-  "name": "ticketmaster_ingest",
+  "name": "ticketmaster-ingest",
   "version": "1.0.0",
   "dependencies": {
     "axios": "^1.5.0",

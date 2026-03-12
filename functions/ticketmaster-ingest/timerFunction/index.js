@@ -1,21 +1,22 @@
 const axios = require("axios");
-const { DefaultAzureCredential } = require("@azure/identity");
-const { DataLakeServiceClient } = require("@azure/storage-file-datalake");
+const { DataLakeServiceClient, StorageSharedKeyCredential } = require("@azure/storage-file-datalake");
 
 module.exports = async function (context, myTimer) {
     context.log("Ticketmaster ingestion started");
 
     try {
-        // Ticketmaster API
+        // --- Fetch Ticketmaster events ---
         const apiKey = process.env.TICKETMASTER_API_KEY;
         const url = `https://app.ticketmaster.com/discovery/v2/events.json?city=Zurich&apikey=${apiKey}`;
         const response = await axios.get(url);
         const events = response.data;
 
-        // ADLS client
+        // --- Configure Data Lake client using account key ---
         const accountName = process.env.DATALAKE_ACCOUNT_NAME;
-        const fileSystemName = "events";
-        const credential = new DefaultAzureCredential();
+        const accountKey  = process.env.DATALAKE_ACCOUNT_KEY;
+        const fileSystemName = process.env.EVENTS_CONTAINER_NAME;
+
+        const credential = new StorageSharedKeyCredential(accountName, accountKey);
         const serviceClient = new DataLakeServiceClient(
             `https://${accountName}.dfs.core.windows.net`,
             credential
@@ -23,22 +24,18 @@ module.exports = async function (context, myTimer) {
 
         const fileSystemClient = serviceClient.getFileSystemClient(fileSystemName);
 
-        // Ensure filesystem exists
-        if (!(await fileSystemClient.exists())) {
-            await fileSystemClient.create();
-        }
-
-        // Create file
+        // --- Create unique file path ---
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
         const fileName = `raw/events_${timestamp}.json`;
         const fileClient = fileSystemClient.getFileClient(fileName);
 
-        const dataBuffer = Buffer.from(JSON.stringify(events), "utf-8");
+        // --- Upload data using create + append + flush ---
+        const dataBuffer = Buffer.from(JSON.stringify(events));
         await fileClient.create({ overwrite: true });
-        await fileClient.append(dataBuffer, 0, dataBuffer.byteLength);
-        await fileClient.flush(dataBuffer.byteLength);
+        await fileClient.append(dataBuffer, 0, dataBuffer.length);
+        await fileClient.flush(dataBuffer.length);
 
-        context.log(`Ticketmaster events uploaded to ${fileName}`);
+        context.log(`Ticketmaster events successfully uploaded to ${fileName}`);
     } catch (error) {
         context.log.error("Failed to ingest Ticketmaster events:", error.message || error);
     }

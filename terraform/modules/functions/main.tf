@@ -67,6 +67,11 @@ resource "azurerm_role_assignment" "function_storage_access" {
   scope                = var.storage_account_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.func_identity.principal_id
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [principal_id]
+  }
 }
 
 output "function_name" {

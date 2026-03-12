@@ -20,6 +20,10 @@ resource "azurerm_application_insights" "app_insights" {
   location            = var.location
   resource_group_name = var.resource_group_name
   application_type    = "web"
+
+  lifecycle {
+    ignore_changes = [workspace_id]
+  }
 }
 
 resource "azurerm_user_assigned_identity" "func_identity" {
@@ -74,5 +78,5 @@ output "application_insights_key" {
 }
 
 output "function_principal_id" {
-  value = azurerm_linux_function_app.func.identity[0].principal_id
+  value = azurerm_user_assigned_identity.func_identity.principal_id
 }

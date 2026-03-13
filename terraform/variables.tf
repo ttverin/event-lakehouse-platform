@@ -27,3 +27,8 @@ variable "ticketmaster_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "sp_client_secret" {
+  type      = string
+  sensitive = true
+}

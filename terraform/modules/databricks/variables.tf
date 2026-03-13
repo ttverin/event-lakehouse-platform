@@ -17,3 +17,12 @@ variable "project_name" {
 variable "environment" {
   type = string
 }
+
+variable "storage_account_key" {
+  type = string
+}
+
+variable "sp_client_secret" {
+  type      = string
+  sensitive = true
+}

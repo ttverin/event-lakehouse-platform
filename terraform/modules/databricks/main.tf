@@ -26,7 +26,8 @@ resource "databricks_cluster" "ticketmaster" {
   cluster_name            = "ticketmaster-cluster"
   spark_version           = "17.3.x-scala2.13"
   node_type_id            = "Standard_D4ds_v4"
-  autotermination_minutes = 10
+  autotermination_minutes = 5
+  num_workers             = 1
 }
 
 resource "databricks_secret_scope" "ticketmaster" {

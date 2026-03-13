@@ -46,9 +46,9 @@ resource "databricks_secret" "ticketmaster_api_key" {
   scope        = databricks_secret_scope.ticketmaster.name
 }
 
-resource "databricks_workspace_file" "ingest_notebook" {
-  content_base64 = base64encode(file("${path.module}/ingest_ticketmaster.py"))
-  path           = "/Workspace/Ticketmaster/ingest_notebook"
+resource "databricks_dbfs_file" "ingest" {
+  source = "${path.module}/ingest_ticketmaster.py"
+  path   = "/FileStore/code/ingest_ticketmaster.py"
 }
 
 resource "databricks_job" "ticketmaster_ingest" {
@@ -57,8 +57,8 @@ resource "databricks_job" "ticketmaster_ingest" {
   task {
     task_key = "ticketmaster_ingest_task"
 
-    notebook_task {
-      notebook_path = "/Workspace/Ticketmaster/ingest_notebook"
+    spark_python_task {
+      python_file = "dbfs:/FileStore/code/ingest_ticketmaster.py"
     }
 
     new_cluster {

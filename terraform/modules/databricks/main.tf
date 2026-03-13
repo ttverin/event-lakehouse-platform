@@ -15,6 +15,13 @@ resource "azurerm_databricks_workspace" "workspace" {
   sku                 = "standard"
 }
 
+provider "databricks" {
+  azure_workspace_resource_id = azurerm_databricks_workspace.workspace.id
+  azure_client_id             = data.azurerm_client_config.current.client_id
+  azure_client_secret         = var.sp_client_secret
+  azure_tenant_id             = data.azurerm_client_config.current.tenant_id
+}
+
 resource "databricks_cluster" "ticketmaster" {
   cluster_name            = "ticketmaster-cluster"
   spark_version           = "17.3.x-scala2.13"
@@ -36,7 +43,7 @@ resource "databricks_job" "ticketmaster_ingest" {
   name = "Ticketmaster Ingestion"
 
   task {
-    task_key = "ticketmaster_ingest_task"   # unique identifier for the task
+    task_key = "ticketmaster_ingest_task"
     notebook_task {
       notebook_path = "/Workspace/Ticketmaster/ingest_notebook"
     }

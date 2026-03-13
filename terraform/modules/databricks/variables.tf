@@ -21,3 +21,8 @@ variable "environment" {
 variable "storage_account_key" {
   type = string
 }
+
+variable "sp_client_secret" {
+  type      = string
+  sensitive = true
+}

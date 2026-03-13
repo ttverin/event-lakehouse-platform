@@ -40,16 +40,32 @@ resource "databricks_secret" "storage_key" {
   scope        = databricks_secret_scope.ticketmaster.name
 }
 
+resource "databricks_secret" "ticketmaster_api_key" {
+  key          = "ticketmaster_api_key"
+  string_value = var.ticketmaster_api_key
+  scope        = databricks_secret_scope.ticketmaster.name
+}
+
+resource "databricks_dbfs_file" "ingest" {
+  source = "${path.module}/ingest_ticketmaster.py"
+  path   = "/FileStore/code/ingest_ticketmaster.py"
+}
+
 resource "databricks_job" "ticketmaster_ingest" {
   name = "Ticketmaster Ingestion"
 
   task {
     task_key = "ticketmaster_ingest_task"
-    notebook_task {
-      notebook_path = "/Workspace/Ticketmaster/ingest_notebook"
+
+    spark_python_task {
+      python_file = "dbfs:/FileStore/code/ingest_ticketmaster.py"
     }
 
-    existing_cluster_id = databricks_cluster.ticketmaster.id
+    new_cluster {
+      spark_version           = "17.3.x-scala2.13"
+      node_type_id            = "Standard_D4ds_v4"
+      num_workers             = 1
+    }
   }
 }
 

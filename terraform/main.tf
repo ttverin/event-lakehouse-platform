@@ -14,6 +14,8 @@ module "databricks" {
   location       = var.location
   project_name         = var.project_name
   environment          = var.environment
+  storage_account_key  = module.storage.storage_account_key
+
 }
 
 

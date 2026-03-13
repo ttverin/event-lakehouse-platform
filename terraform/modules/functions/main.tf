@@ -1,5 +1,6 @@
 data "azurerm_client_config" "current" {}
 
+# Service Plan
 resource "azurerm_service_plan" "plan" {
   name                = "${var.function_name}-plan"
   location            = var.location
@@ -8,9 +9,10 @@ resource "azurerm_service_plan" "plan" {
   sku_name            = "Y1"
 }
 
+# Storage Container for events
 resource "azurerm_storage_container" "events" {
   name                  = "events"
-  storage_account_name    = var.storage_account
+  storage_account_name  = var.storage_account
   container_access_type = "private"
 }
 
@@ -26,26 +28,15 @@ resource "azurerm_application_insights" "app_insights" {
   }
 }
 
-resource "azurerm_user_assigned_identity" "func_identity" {
-  name                = "${var.function_name}-identity"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-}
-
+# Linux Function App with system-assigned identity
 resource "azurerm_linux_function_app" "func" {
   name                = var.function_name
   location            = var.location
   resource_group_name = var.resource_group_name
-
   service_plan_id     = azurerm_service_plan.plan.id
 
   storage_account_name       = var.storage_account
   storage_account_access_key = var.storage_account_key
-
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.func_identity.id]
-  }
 
   site_config {
     application_stack {
@@ -56,13 +47,13 @@ resource "azurerm_linux_function_app" "func" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME = "node"
     DATALAKE_ACCOUNT_NAME    = var.storage_account
+    DATALAKE_ACCOUNT_KEY     = var.storage_account_key
     EVENTS_CONTAINER_NAME    = azurerm_storage_container.events.name
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.app_insights.instrumentation_key
     APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.app_insights.connection_string
-    TICKETMASTER_API_KEY                 = var.ticketmaster_api_key
+    TICKETMASTER_API_KEY = var.ticketmaster_api_key
   }
 }
-
 
 output "function_name" {
   value = azurerm_linux_function_app.func.name
@@ -70,8 +61,4 @@ output "function_name" {
 
 output "application_insights_key" {
   value = azurerm_application_insights.app_insights.instrumentation_key
-}
-
-output "function_principal_id" {
-  value = azurerm_user_assigned_identity.func_identity.principal_id
 }

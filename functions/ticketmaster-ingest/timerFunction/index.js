@@ -7,7 +7,7 @@ module.exports = async function (context, myTimer) {
     try {
         // --- Fetch Ticketmaster events ---
         const apiKey = process.env.TICKETMASTER_API_KEY;
-        const url = `https://app.ticketmaster.com/discovery/v2/events.json?city=Zurich&apikey=${apiKey}`;
+        const url = `https://app.ticketmaster.com/discovery/v2/events.json?countryCode=CH&apikey=${apiKey}`;
         const response = await axios.get(url);
         const events = response.data;
 

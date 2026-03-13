@@ -32,10 +32,3 @@ jobs:
           package: ./functions/ticketmaster-ingest
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
-      - name: Configure Function App Settings
-        run: |
-            az functionapp config appsettings set \
-              --name ticketmaster-ingest \
-              --resource-group eventhouse-dev-rg \
-              --settings TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }} \
-                         DATALAKE_ACCOUNT_NAME=${{ secrets.DATALAKE_ACCOUNT_NAME }}

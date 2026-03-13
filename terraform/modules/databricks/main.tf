@@ -43,6 +43,7 @@ resource "databricks_job" "ticketmaster_ingest" {
 
     existing_cluster_id = databricks_cluster.ticketmaster.id
   }
+}
 
 output "workspace_name" {
   value = azurerm_databricks_workspace.workspace.name

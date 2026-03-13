@@ -16,6 +16,7 @@ module "databricks" {
   environment          = var.environment
   storage_account_key  = module.storage.storage_account_key
   sp_client_secret     = var.sp_client_secret
+  ticketmaster_api_key = var.ticketmaster_api_key
 }
 
 

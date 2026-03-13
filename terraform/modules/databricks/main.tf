@@ -40,6 +40,17 @@ resource "databricks_secret" "storage_key" {
   scope        = databricks_secret_scope.ticketmaster.name
 }
 
+resource "databricks_secret" "ticketmaster_api_key" {
+  key          = "ticketmaster_api_key"
+  string_value = var.ticketmaster_api_key
+  scope        = databricks_secret_scope.ticketmaster.name
+}
+
+resource "databricks_workspace_file" "ingest_notebook" {
+  content_base64 = base64encode(file("${path.module}/ingest_ticketmaster.py"))
+  path           = "/Workspace/Ticketmaster/ingest_notebook"
+}
+
 resource "databricks_job" "ticketmaster_ingest" {
   name = "Ticketmaster Ingestion"
 

@@ -15,7 +15,7 @@ module "databricks" {
   project_name         = var.project_name
   environment          = var.environment
   storage_account_key  = module.storage.storage_account_key
-
+  sp_client_secret     = var.sp_client_secret
 }
 
 

@@ -12,7 +12,7 @@ resource "azurerm_databricks_workspace" "workspace" {
   name                = var.workspace_name
   resource_group_name = var.resource_group
   location            = var.location
-  sku                 = "standard"
+  sku                 = "premium"
 }
 
 provider "databricks" {

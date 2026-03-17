@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, to_timestamp, current_timestamp, datediff, current_date
+from pyspark.sql.functions import col, explode_outer, to_timestamp, current_timestamp, datediff, current_date
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -23,25 +23,21 @@ raw_path = f"abfss://{file_system_name}@{storage_account_name}.dfs.core.windows.
 df = spark.read.json(raw_path)
 
 # --------------------------
-# Flatten events
+# Flatten venues (safe)
 # --------------------------
-events = df.select(
-    explode("_embedded.events").alias("event")
-)
-
-flat_df = events.select(
-    col("event.id").alias("event_id"),
-    col("event.name").alias("event_name"),
-    col("event.type").alias("event_type"),
-    col("event.url").alias("url"),
-    col("event.dates.start.dateTime").alias("event_datetime"),
-    explode("event._embedded.venues").alias("venue")
+events_df = df.select(
+    col("id").alias("event_id"),
+    col("name").alias("event_name"),
+    col("type").alias("event_type"),
+    col("url").alias("url"),
+    col("dates.start.dateTime").alias("event_datetime"),
+    explode_outer("_embedded.venues").alias("venue")  # safe explode
 )
 
 # --------------------------
 # Select venue fields
 # --------------------------
-clean_df = flat_df.select(
+clean_df = events_df.select(
     "event_id",
     "event_name",
     "event_type",
@@ -68,13 +64,13 @@ future_events = clean_df.filter(
 )
 
 # --------------------------
-# Write to Delta (structured)
+# Write to Delta
 # --------------------------
 output_path = f"abfss://{file_system_name}@{storage_account_name}.dfs.core.windows.net/processed/events/"
 
 future_events.write.format("delta").mode("overwrite").save(output_path)
 
-# Optional: register table (recommended for Power BI)
+# Optional: register table for Power BI
 future_events.write.format("delta").mode("overwrite").saveAsTable("events_curated")
 
-print("✅ Processed events ready for dashboard")
+print("Processed events ready for dashboard")

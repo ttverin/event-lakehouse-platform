@@ -52,7 +52,7 @@ resource "databricks_dbfs_file" "ingest" {
 }
 
 resource "databricks_job" "ticketmaster_ingest" {
-  name = "Ticketmaster Ingestion"
+  name = "Ticketmaster Ingestion Daily"
 
   task {
     task_key = "ticketmaster_ingest_task"
